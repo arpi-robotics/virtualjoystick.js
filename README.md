@@ -1,7 +1,7 @@
 virtualjoystick.js
 ==================
 
-It is small library to emulate a virtual joystick for touchscreen.
+It is small library to emulate a virtual joystick for touchscreen. 
 For details, see ["Let’s Make a 3D Game: Virtual Joystick"](http://learningthreejs.com/blog/2011/12/26/let-s-make-a-3d-game-virtual-joystick/)
 post on 
 ["learningthreejs blog"](http://learningthreejs.com).
