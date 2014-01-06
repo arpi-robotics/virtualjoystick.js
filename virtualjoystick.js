@@ -30,7 +30,14 @@ var VirtualJoystick	= function(opts)
 		this._baseEl.style.left		= (this._baseX - this._baseEl.width /2)+"px";
 		this._baseEl.style.top		= (this._baseY - this._baseEl.height/2)+"px";
 	}
-    
+
+    this._updatePositionOfContainer();
+    window.onresize = (function (joystick) {
+        return function () {
+            return joystick._updatePositionOfContainer();
+        }
+    })(this);
+
     this._transform = (opts.useCssTransform !== undefined ? opts.useCssTransform : true) ? this._getTransformProperty() : false;
     this._has3d = this._check3D();
 	
@@ -49,6 +56,21 @@ var VirtualJoystick	= function(opts)
 		this._container.addEventListener( 'mouseup'	, this._$onMouseUp	, false );
 		this._container.addEventListener( 'mousemove'	, this._$onMouseMove	, false );
 	}
+}
+
+VirtualJoystick.prototype._updatePositionOfContainer = function () {
+    var x = 0, y = 0;
+    var element = this._container;
+
+    while (element && !isNaN(element.offsetLeft) && !isNaN(element.offsetTop)) {
+        x += element.offsetLeft - element.scrollLeft;
+        y += element.offsetTop - element.scrollTop;
+        element = element.offsetParent;
+    }
+    this._containerX = x;
+    this._containerY = y;
+
+    console.log("updated x="+x+" y="+y);
 }
 
 VirtualJoystick.prototype.destroy	= function()
@@ -224,15 +246,15 @@ VirtualJoystick.prototype._onMouseUp	= function(event)
 VirtualJoystick.prototype._onMouseDown	= function(event)
 {
 	event.preventDefault();
-	var x	= event.clientX;
-	var y	= event.clientY;
+	var x  = event.clientX - this._containerX;
+    var y  = event.clientY - this._containerY;
 	return this._onDown(x, y);
 }
 
 VirtualJoystick.prototype._onMouseMove	= function(event)
 {
-	var x	= event.clientX;
-	var y	= event.clientY;
+	var x  = event.clientX - this._containerX;
+    var y  = event.clientY - this._containerY;
 	return this._onMove(x, y);
 }
 
@@ -256,8 +278,8 @@ VirtualJoystick.prototype._onTouchStart	= function(event)
 	this._touchIdx	= touch.identifier;
 
 	// forward the action
-	var x		= touch.pageX;
-	var y		= touch.pageY;
+	var x    = touch.clientX - this._containerX;
+    var y    = touch.clientY - this._containerY;
 	return this._onDown(x, y)
 }
 
@@ -296,8 +318,8 @@ VirtualJoystick.prototype._onTouchMove	= function(event)
 
 	event.preventDefault();
 
-	var x		= touch.pageX;
-	var y		= touch.pageY;
+	var x    = touch.clientX - this._containerX;
+    var y    = touch.clientY - this._containerY;
 	return this._onMove(x, y)
 }
 
